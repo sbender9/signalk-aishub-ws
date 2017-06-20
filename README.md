@@ -1,2 +1,2 @@
 # signalk-aishub-ws
-Convert data from AisHub's web api to signalk vessels
+SignalK plugin to convert data from AisHub's web api to signalk vessels
