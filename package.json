@@ -1,0 +1,26 @@
+{
+  "name": "signalk-aishub-ws",
+  "version": "1.0.0",
+  "description": "SignalK plugin to convert data from AisHub's web api to signalk vessels",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "signalk-node-server-plugin"
+  ],
+  "author": "scott@scottbender.net",
+  "license": "ISC",
+  "dependencies": {
+    "ggencoder": "^0.1.18",
+    "debug": "^2.2.0",
+    "bluebird": "^3.0.0",
+    "superagent": "^3.3.2",
+    "superagent-promise": "^1.0.3",
+    "n2k-signalk": "^0.0.1-1"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/sbender9/signalk-aishub-ws"
+  }
+}
