@@ -79,8 +79,7 @@ module.exports = function(app)
   function aisHubToDeltas(response)
   {
     var hub = JSON.parse(response)
-    //
-    debug("response: " + JSON.stringify(hub))
+    //debug("response: " + JSON.stringify(hub))
     var status = hub[0]
     if ( status.ERROR )
     {
@@ -90,8 +89,22 @@ module.exports = function(app)
 
     hub[1].forEach(vessel => {
       var delta = getVesselDelta(vessel)
+
+      /*
+      var existing = app.signalk.root.vessels["urn:mrn:imo:mmsi:" + vessel.MMSI]
+
+      if ( existing )
+      {
+        var ts = _.get(existing, "navigation.position.timestamp")
+        if ( ts )
+        {
+          var existingDate = new Date(ts)
+          
+        }
+      }*/
+      
       debug("vessel: " + JSON.stringify(delta))
-      app.signalk.addDelta(delta)
+      app.handleMessage(plugin.id, delta)
     })
   }
   
