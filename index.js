@@ -22,6 +22,7 @@ const Promise = require('bluebird')
 const agent = require('superagent-promise')(require('superagent'), Promise)
 const fs = require("fs");
 const _ = require('lodash')
+const schema = require('@signalk/signalk-schema')
 
 const stateMapping = {
   0: 'motoring',
@@ -88,6 +89,7 @@ module.exports = function(app)
     }
 
     hub[1].forEach(vessel => {
+      debug(JSON.stringify(vessel))
       var delta = getVesselDelta(vessel)
 
       /*
@@ -283,7 +285,15 @@ const mappings = [
   },
   {
     path: "design.aisShipType",
-    key: "TYPE"
+    key: "TYPE",
+    conversion: function(vessel, val) {
+      const name = schema.getAISShipTypeName(val)
+      if ( name ) {
+        return { id: val, 'name': name }
+      } else {
+        return null
+      }
+    }
   },
   {
     path: "navigation.state",
@@ -324,6 +334,8 @@ function getVesselDelta(vessel)
       if ( mapping.conversion )
       {
         val = mapping.conversion(vessel, val)
+        if ( val == null )
+          return
       }
       var path = mapping.path
       if ( mapping.root )
