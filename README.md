@@ -1,4 +1,6 @@
 # signalk-aishub-ws
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/sbender9/signalk-aishub-ws.svg)](https://greenkeeper.io/)
 SignalK node server plugin to convert data from AisHub's web api to signalk vessels
 
 Install with
