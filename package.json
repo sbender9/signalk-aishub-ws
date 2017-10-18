@@ -13,11 +13,11 @@
   "license": "ISC",
   "dependencies": {
     "ggencoder": "^0.1.18",
-    "debug": "^2.2.0",
+    "debug": "^3.1.0",
     "bluebird": "^3.0.0",
     "superagent": "^3.3.2",
     "superagent-promise": "^1.0.3",
-    "n2k-signalk": "^0.0.1-1"
+    "n2k-signalk": "^0.0.3"
   },
   "repository": {
     "type" : "git",
