@@ -20,7 +20,7 @@
     "n2k-signalk": "^0.0.3"
   },
   "devDependencies": {
-    "@signalk/signalk-schema": "0.0.1-11",
+    "@signalk/signalk-schema": "0.0.1-12",
     "mocha": "^4.0.0"
   },
   "repository": {
