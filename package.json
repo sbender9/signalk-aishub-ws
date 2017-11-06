@@ -1,6 +1,6 @@
 {
   "name": "signalk-aishub-ws",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "SignalK plugin to convert data from AisHub's web api to signalk vessels",
   "main": "index.js",
   "scripts": {
