@@ -115,9 +115,10 @@ module.exports = function(app)
     var update = function()
     {
       var position = _.get(app.signalk.self, 'navigation.position')
+      debug("position: " + JSON.stringify(position))
       if ( position.value )
         position = position.value
-      if ( typeof position == 'undefined' )
+      if ( typeof position == 'undefined' || typeof position.latitude == 'undefined' || typeof position.longitude === 'undefined' )
       {
         debug("no position available")
         return
@@ -240,7 +241,13 @@ const mappings = [
   },
   {
     path: "sensors.ais.fromBow",
-    key: 'A'
+    key: 'A',
+    conversion: function(vessel, val) {
+      var length = vessel.A + vessel.B
+      if ( length == 0 )
+        return null
+      return val
+    }
   },
   {
     path: "sensors.ais.fromCenter",
@@ -249,6 +256,9 @@ const mappings = [
       var to_starboard = vessel.D
       var to_port = vessel.C
       var width = to_port + to_starboard
+
+      if ( width == 0 )
+        return null
       
       if ( to_starboard > (width/2) )
       {
@@ -265,7 +275,10 @@ const mappings = [
     key: "A",
     conversion: function(vessel, to_bow) {
       var to_stern = vessel.B
-      return { overall: to_stern + to_bow }
+      var length = to_stern + to_bow
+      if ( length == 0 )
+        return null
+      return { overall: length }
     }
   },
   {
@@ -273,13 +286,20 @@ const mappings = [
     key: "C",
     conversion: function(vessel, to_port) {
       var to_starboard = vessel.D
-      return to_port + to_starboard
+      var beam = to_port + to_starboard
+      if ( beam == 0 )
+        return null
+      return beam
     }
   },
   {
     path: "design.draft",
     key: "DRAUGHT",
-    conversion: function(vessel, val) { return { maximum: val } }
+    conversion: function(vessel, val) {
+      if ( val == 0 )
+        return null
+      return { maximum: val }
+    }
   },
   {
     path: 'navigation.position',
