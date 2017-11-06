@@ -115,6 +115,8 @@ module.exports = function(app)
     var update = function()
     {
       var position = _.get(app.signalk.self, 'navigation.position')
+      if ( position.value )
+        position = position.value
       if ( typeof position == 'undefined' )
       {
         debug("no position available")
@@ -217,12 +219,20 @@ const mappings = [
   {
     path: "navigation.courseOverGroundTrue",
     key: "COG",
-    conversion: degsToRadC
+    conversion: function(vessel, val) {
+      if ( val == 360 )
+        return null;
+      return degsToRadC(vessel, val)
+    }
   },
   {
     path: "navigation.headingTrue",
     key: "HEADING",
-    conversion: degsToRadC
+    conversion: function(vessel, val) {
+      if ( val == 511 )
+        return null;
+      return degsToRadC(vessel, val);
+    }
   },
   {
     path: "navigation.destination.commonName",
@@ -281,7 +291,11 @@ const mappings = [
   {
     path: "navigation.speedOverGround",
     key: "SOG",
-    conversion: function(vessel, val) { return val * 0.514444 }
+    conversion: function(vessel, val) {
+      if ( val == 102.4 )
+        return null;
+      return val * 0.514444
+    }
   },
   {
     path: "design.aisShipType",

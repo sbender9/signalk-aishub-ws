@@ -4,7 +4,7 @@
   "description": "SignalK plugin to convert data from AisHub's web api to signalk vessels",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Warning: no test specified\" && exit 0"
+    "test": "$NODE $npm_package_main"
   },
   "keywords": [
     "signalk-node-server-plugin"
