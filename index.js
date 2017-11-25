@@ -44,7 +44,8 @@ module.exports = function(app)
 {
   var plugin = {};
   var timeout = undefined
-
+  let selfContext = 'vessels.' + app.selfId
+  
   plugin.id = "signalk-aishub-ws"
   plugin.name = "AisHub WS"
   plugin.description = plugin.name
@@ -92,6 +93,10 @@ module.exports = function(app)
       debug(JSON.stringify(vessel))
       var delta = getVesselDelta(vessel)
 
+      if ( delta == null ) {
+        return
+      }
+
       /*
       var existing = app.signalk.root.vessels["urn:mrn:imo:mmsi:" + vessel.MMSI]
 
@@ -109,6 +114,54 @@ module.exports = function(app)
       app.handleMessage(plugin.id, delta)
     })
   }
+
+  function getVesselDelta(vessel)
+  {
+    var context = "vessels.urn:mrn:imo:mmsi:" + vessel.MMSI;
+
+    if ( context == selfContext ) {
+      debug(`ignorning vessel: ${context}`)
+      return null
+    }
+    
+    var delta = {
+      "context": context,
+      "updates": [
+        {
+          "timestamp": convertTime(vessel, vessel.TIME),
+          "source": {
+            "label": "aishub"
+          },
+          "values": []
+        }
+      ]
+    }
+    mappings.forEach(mapping => {
+      var val = vessel[mapping.key]
+      if ( typeof val !== 'undefined' )
+      {
+        if ( typeof val === 'string' && val.length == 0 )
+          return
+
+        if ( mapping.conversion )
+        {
+          val = mapping.conversion(vessel, val)
+          if ( val == null )
+            return
+        }
+        var path = mapping.path
+        if ( mapping.root )
+        {
+          var nval = {}
+          nval[path] = val
+          val = nval
+          path = ''
+        }
+        addValue(delta, path, val)
+      }
+    })
+    return delta;
+  }
   
   plugin.start = function(options)
   {
@@ -116,7 +169,7 @@ module.exports = function(app)
     {
       var position = _.get(app.signalk.self, 'navigation.position')
       debug("position: " + JSON.stringify(position))
-      if ( position.value )
+      if ( typeof position !== 'undefined' && position.value )
         position = position.value
       if ( typeof position == 'undefined' || typeof position.latitude == 'undefined' || typeof position.longitude === 'undefined' )
       {
@@ -344,46 +397,6 @@ const mappings = [
   }
 ]
 
-function getVesselDelta(vessel)
-{
-  var delta = {
-    "context": "vessels.urn:mrn:imo:mmsi:" + vessel.MMSI,
-    "updates": [
-      {
-        "timestamp": convertTime(vessel, vessel.TIME),
-        "source": {
-          "label": "aishub"
-        },
-        "values": []
-      }
-    ]
-  }
-  mappings.forEach(mapping => {
-    var val = vessel[mapping.key]
-    if ( typeof val !== 'undefined' )
-    {
-      if ( typeof val === 'string' && val.length == 0 )
-        return
-
-      if ( mapping.conversion )
-      {
-        val = mapping.conversion(vessel, val)
-        if ( val == null )
-          return
-      }
-      var path = mapping.path
-      if ( mapping.root )
-      {
-        var nval = {}
-        nval[path] = val
-        val = nval
-        path = ''
-      }
-      addValue(delta, path, val)
-    }
-  })
-  return delta;
-}
 
 function mod(x,y){
   return x-y*Math.floor(x/y)
