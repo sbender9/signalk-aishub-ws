@@ -15,10 +15,7 @@
  */
 
 const http = require('http')
-const debug = require('debug')('signalk-aishub-ws')
-const util = require('util')
 const Promise = require('bluebird')
-//const Promise = this.Promise || require('promise');
 const agent = require('superagent-promise')(require('superagent'), Promise)
 const fs = require("fs");
 const _ = require('lodash')
@@ -81,7 +78,7 @@ module.exports = function(app)
   function aisHubToDeltas(response)
   {
     var hub = JSON.parse(response)
-    //debug("response: " + JSON.stringify(hub))
+    //app.debug("response: " + JSON.stringify(hub))
     var status = hub[0]
     if ( status.ERROR )
     {
@@ -90,7 +87,7 @@ module.exports = function(app)
     }
 
     hub[1].forEach(vessel => {
-      debug(JSON.stringify(vessel))
+      app.debug('found vessel %j', vessel)
       var delta = getVesselDelta(vessel)
 
       if ( delta == null ) {
@@ -110,7 +107,7 @@ module.exports = function(app)
         }
       }*/
       
-      debug("vessel: " + JSON.stringify(delta))
+      app.debug("vessel delta:  %j", delta)
       app.handleMessage(plugin.id, delta)
     })
   }
@@ -167,13 +164,13 @@ module.exports = function(app)
   {
     var update = function()
     {
-      var position = _.get(app.signalk.self, 'navigation.position')
-      debug("position: " + JSON.stringify(position))
+      var position = app.getSelfPath('navigation.position')
+      app.debug("position: %o", position)
       if ( typeof position !== 'undefined' && position.value )
         position = position.value
       if ( typeof position == 'undefined' || typeof position.latitude == 'undefined' || typeof position.longitude === 'undefined' )
       {
-        debug("no position available")
+        app.debug("no position available")
         return
       }
 
@@ -182,7 +179,7 @@ module.exports = function(app)
 
       var url = options.url + "?username=" + options.apikey + "&format=1&output=json&compress=0&latmin=" + box.latmin + "&latmax=" + box.latmax + "&lonmin=" + box.lonmin + "&lonmax=" + box.lonmax
 
-      debug("url: " + url)
+      app.debug("url: " + url)
 
       agent('GET', url).end().then(function(response) {
         aisHubToDeltas(response.text)
@@ -193,7 +190,7 @@ module.exports = function(app)
         aisHubToDeltas(data)
       })
         */
-      //debug("update: " + res)
+      //app.debug("update: " + res)
     }
 
     var rate = options.updaterate
