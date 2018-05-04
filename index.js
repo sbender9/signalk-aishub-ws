@@ -117,7 +117,7 @@ module.exports = function(app)
     var context = "vessels.urn:mrn:imo:mmsi:" + vessel.MMSI;
 
     if ( context == selfContext ) {
-      debug(`ignorning vessel: ${context}`)
+      app.debug(`ignorning vessel: ${context}`)
       return null
     }
     
@@ -175,7 +175,7 @@ module.exports = function(app)
       }
 
       var box = calc_boundingbox(options, position)
-      publishBox(app, box)
+      publishBox(box)
 
       var url = options.url + "?username=" + options.apikey + "&format=1&output=json&compress=0&latmin=" + box.latmin + "&latmax=" + box.latmax + "&lonmin=" + box.lonmin + "&lonmax=" + box.lonmax
 
@@ -209,6 +209,28 @@ module.exports = function(app)
       timeout = undefined
     }
   }
+
+  function publishBox(box)
+  {
+    var delta = {
+      "context": "vessels." + app.selfId,
+      "updates": [
+        {
+          "source": {
+            "label": "aishub"
+          },
+          "values": [
+            {
+              path: "sensors.ais.boundingBox",
+              value: box
+            }
+          ]
+        }
+      ]
+    }
+    app.handleMessage("signalk-aishub-ws", delta)
+  }
+
 
   return plugin
 }
@@ -436,23 +458,3 @@ function calc_boundingbox(opions, position)
   }
 }
 
-function publishBox(app, box)
-{
-  var delta = {
-    "context": "vessels." + app.selfId,
-    "updates": [
-      {
-        "source": {
-          "label": "aishub"
-        },
-        "values": [
-          {
-            path: "sensors.ais.boundingBox",
-            value: box
-          }
-        ]
-      }
-    ]
-    }
-  app.signalk.addDelta(delta)
-}
