@@ -17,7 +17,7 @@
   "dependencies": {
     "ggencoder": "^0.1.18",
     "bluebird": "^3.0.0",
-    "superagent": "^3.3.2",
+    "superagent": "^5.0.9",
     "superagent-promise": "^1.0.3",
     "@signalk/signalk-schema": "^1.0.3"
   },
