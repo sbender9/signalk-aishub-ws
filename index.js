@@ -71,6 +71,14 @@ module.exports = function(app)
         type: "number",
         title:"Size of the bounding box to retrieve data (km)",
         default: 10
+      },
+      mmsiList: {
+        type: "array",
+        title: "Only get data for specfic MMSIs",
+        items: {
+          type: "string",
+          title: "MMSI"
+        }
       }
     }
   }
@@ -177,7 +185,13 @@ module.exports = function(app)
       var box = calc_boundingbox(options, position)
       publishBox(box)
 
-      var url = options.url + "?username=" + options.apikey + "&format=1&output=json&compress=0&latmin=" + box.latmin + "&latmax=" + box.latmax + "&lonmin=" + box.lonmin + "&lonmax=" + box.lonmax
+      var url = options.url + "?username=" + options.apikey + "&format=1&output=json&compress=0"
+
+      if ( options.mmsiList && options.mmsiList.length > 0 ) {
+        url = url + "&mmsi=" + options.mmsiList.join(',')
+      } else {
+        url = url + "&latmin=" + box.latmin + "&latmax=" + box.latmax + "&lonmin=" + box.lonmin + "&lonmax=" + box.lonmax
+      }
 
       app.debug("url: " + url)
 
