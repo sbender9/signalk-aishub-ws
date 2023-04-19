@@ -42,6 +42,7 @@ module.exports = function(app)
   var plugin = {};
   var timeout = undefined
   let selfContext = 'vessels.' + app.selfId
+  let lastWasMMSI = true
   
   plugin.id = "signalk-aishub-ws"
   plugin.name = "AisHub WS"
@@ -67,14 +68,24 @@ module.exports = function(app)
         title: "Rate to get updates from AisHub (s > 60)",
         default: 61
       },
+      boxEnabled: {
+        type: "boolean",
+        title: "Enable bounding box search",
+        default: true
+      },
       boxSize: {
         type: "number",
         title:"Size of the bounding box to retrieve data (km)",
         default: 10
       },
+      listEnabled: {
+        type: "boolean",
+        title: "Enable MMSI list search",
+        default: false
+      },
       mmsiList: {
         type: "array",
-        title: "Only get data for specfic MMSIs",
+        title: "MMSIs to retrieve even when outside of bounding box",
         items: {
           type: "string",
           title: "MMSI"
@@ -187,7 +198,21 @@ module.exports = function(app)
 
       var url = options.url + "?username=" + options.apikey + "&format=1&output=json&compress=0"
 
-      if ( options.mmsiList && options.mmsiList.length > 0 ) {
+      let doList
+
+      if ( options.boxEnabled && options.listEnabled && options.mmsiList && options.mmsiList.length > 0  ) {
+        doList = !lastWasMMSI
+        lastWasMMSI = !lastWasMMSI
+      } else if ( typeof options.boxEnabled === 'undefined' || options.boxEnabled ) {
+        doList = false
+      } else if ( options.listEnabled && options.mmsiList && options.mmsiList.length > 0  ) {
+        doList = true
+      } else {
+        qpp.debug('box not enabled and no MMSI list')
+        return
+      }
+
+      if ( doList ) {
         url = url + "&mmsi=" + options.mmsiList.join(',')
       } else {
         url = url + "&latmin=" + box.latmin + "&latmax=" + box.latmax + "&lonmin=" + box.lonmin + "&lonmax=" + box.lonmax
